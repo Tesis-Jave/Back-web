@@ -21,7 +21,9 @@ Preciosventa,
 Tarifasventa,
 } from '../models';
 import {ArticulosRepository} from '../repositories';
+import {authenticate} from '@loopback/authentication';
 
+@authenticate('jwt')
 export class ArticulosTarifasventaController {
   constructor(
     @repository(ArticulosRepository) protected articulosRepository: ArticulosRepository,

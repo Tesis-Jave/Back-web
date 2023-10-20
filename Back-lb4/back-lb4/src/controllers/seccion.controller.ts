@@ -19,7 +19,9 @@ import {
 } from '@loopback/rest';
 import {Seccion} from '../models';
 import {SeccionRepository} from '../repositories';
+import {authenticate} from '@loopback/authentication';
 
+@authenticate('jwt')
 export class SeccionController {
   constructor(
     @repository(SeccionRepository)

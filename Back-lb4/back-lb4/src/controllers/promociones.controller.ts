@@ -19,7 +19,9 @@ import {
 } from '@loopback/rest';
 import {Promociones} from '../models';
 import {PromocionesRepository} from '../repositories';
+import {authenticate} from '@loopback/authentication';
 
+@authenticate('jwt')
 export class PromocionesController {
   constructor(
     @repository(PromocionesRepository)

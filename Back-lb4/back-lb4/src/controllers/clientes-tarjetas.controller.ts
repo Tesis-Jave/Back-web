@@ -20,7 +20,9 @@ import {
   Tarjetas,
 } from '../models';
 import {ClientesRepository} from '../repositories';
+import {authenticate} from '@loopback/authentication';
 
+@authenticate('jwt')
 export class ClientesTarjetasController {
   constructor(
     @repository(ClientesRepository) protected clientesRepository: ClientesRepository,

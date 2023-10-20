@@ -20,7 +20,9 @@ import {
   Cafeteria,
 } from '../models';
 import {TarifasventaRepository} from '../repositories';
+import {authenticate} from '@loopback/authentication';
 
+@authenticate('jwt')
 export class TarifasventaCafeteriaController {
   constructor(
     @repository(TarifasventaRepository) protected tarifasventaRepository: TarifasventaRepository,

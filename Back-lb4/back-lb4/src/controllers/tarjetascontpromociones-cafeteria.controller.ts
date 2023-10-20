@@ -11,7 +11,9 @@ import {
   Cafeteria,
 } from '../models';
 import {TarjetascontpromocionesRepository} from '../repositories';
+import {authenticate} from '@loopback/authentication';
 
+@authenticate('jwt')
 export class TarjetascontpromocionesCafeteriaController {
   constructor(
     @repository(TarjetascontpromocionesRepository)

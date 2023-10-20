@@ -21,7 +21,9 @@ Productosredimidos,
 Articulos,
 } from '../models';
 import {TarjetascontpromocionesRepository} from '../repositories';
+import {authenticate} from '@loopback/authentication';
 
+@authenticate('jwt')
 export class TarjetascontpromocionesArticulosController {
   constructor(
     @repository(TarjetascontpromocionesRepository) protected tarjetascontpromocionesRepository: TarjetascontpromocionesRepository,

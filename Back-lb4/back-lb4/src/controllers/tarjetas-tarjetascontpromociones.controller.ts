@@ -20,7 +20,9 @@ import {
   Tarjetascontpromociones,
 } from '../models';
 import {TarjetasRepository} from '../repositories';
+import {authenticate} from '@loopback/authentication';
 
+@authenticate('jwt')
 export class TarjetasTarjetascontpromocionesController {
   constructor(
     @repository(TarjetasRepository) protected tarjetasRepository: TarjetasRepository,

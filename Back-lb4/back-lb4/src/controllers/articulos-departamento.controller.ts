@@ -11,7 +11,9 @@ import {
   Departamento,
 } from '../models';
 import {ArticulosRepository} from '../repositories';
+import {authenticate} from '@loopback/authentication';
 
+@authenticate('jwt')
 export class ArticulosDepartamentoController {
   constructor(
     @repository(ArticulosRepository)

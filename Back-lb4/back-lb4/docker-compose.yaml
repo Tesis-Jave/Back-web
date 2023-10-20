@@ -1,0 +1,33 @@
+version: '3'
+
+services:
+   app:
+      build: .
+      ports:
+         - "3000:3000"
+      networks:
+         - javepuntos
+      restart: on-failure
+
+   
+   db:
+      image: mysql:5.7
+      container_name: db
+      ports:
+         - "3306:3306"
+      environment:
+         MYSQL_ROOT_PASSWORD: password
+         MYSQL_DATABASE: javepuntos_db
+      volumes:
+        - ./db/:/var/lib/mysql
+        - ./init:/docker-entrypoint-initdb.d
+      networks:
+        - javepuntos
+
+volumes:
+   persistencia:
+      name: data
+
+networks:
+   javepuntos:
+      driver: bridge

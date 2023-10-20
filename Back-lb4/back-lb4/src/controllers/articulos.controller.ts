@@ -19,7 +19,9 @@ import {
 } from '@loopback/rest';
 import {Articulos} from '../models';
 import {ArticulosRepository} from '../repositories';
+import {authenticate} from '@loopback/authentication';
 
+@authenticate('jwt')
 export class ArticulosController {
   constructor(
     @repository(ArticulosRepository)

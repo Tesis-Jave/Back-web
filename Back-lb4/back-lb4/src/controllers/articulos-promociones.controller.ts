@@ -21,7 +21,9 @@ Articulopromocion,
 Promociones,
 } from '../models';
 import {ArticulosRepository} from '../repositories';
+import {authenticate} from '@loopback/authentication';
 
+@authenticate('jwt')
 export class ArticulosPromocionesController {
   constructor(
     @repository(ArticulosRepository) protected articulosRepository: ArticulosRepository,

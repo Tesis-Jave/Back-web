@@ -9,6 +9,13 @@ import {RestApplication} from '@loopback/rest';
 import {ServiceMixin} from '@loopback/service-proxy';
 import path from 'path';
 import {MySequence} from './sequence';
+import {AuthenticationComponent} from '@loopback/authentication';
+import {
+  JWTAuthenticationComponent,
+  UserServiceBindings,
+} from '@loopback/authentication-jwt';
+import {MySqljpDataSource} from './datasources';
+import {JWTStrategy} from './authentication-strategies/jwt-strategy';
 
 export {ApplicationConfig};
 
@@ -40,5 +47,16 @@ export class BackLb4Application extends BootMixin(
         nested: true,
       },
     };
+
+     // Mount authentication system
+    this.component(AuthenticationComponent);
+     // Mount jwt component
+    this.component(JWTAuthenticationComponent);
+     // Bind datasource
+    this.dataSource(MySqljpDataSource, UserServiceBindings.DATASOURCE_NAME);
+     
+    this.bind('authentication.strategies.jwt').to(JWTStrategy);
+    
+    
   }
 }

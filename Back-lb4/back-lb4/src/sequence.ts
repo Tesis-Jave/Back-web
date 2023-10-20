@@ -9,11 +9,11 @@ export class MySequence extends MiddlewareSequence {
       methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
       optionsSuccessStatus: 204,
     });
-
+    
     // Aplica el middleware CORS a la solicitud
     corsMiddleware(context.request, context.response, () => {
       // Llama al siguiente middleware en la secuencia después de que CORS se haya aplicado
       super.handle(context);
     });
-  }
+  } 
 }

@@ -19,7 +19,9 @@ import {
 } from '@loopback/rest';
 import {Cafeteria} from '../models';
 import {CafeteriaRepository} from '../repositories';
+import {authenticate} from '@loopback/authentication';
 
+@authenticate('jwt')
 export class CafeteriasController {
   constructor(
     @repository(CafeteriaRepository)

@@ -20,7 +20,9 @@ import {
   Articulos,
 } from '../models';
 import {SeccionRepository} from '../repositories';
+import {authenticate} from '@loopback/authentication';
 
+@authenticate('jwt')
 export class SeccionArticulosController {
   constructor(
     @repository(SeccionRepository) protected seccionRepository: SeccionRepository,
