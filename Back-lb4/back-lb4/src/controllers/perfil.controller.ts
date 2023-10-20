@@ -94,25 +94,13 @@ export class PerfilController {
 
   @post('/perfils/login')
   async login(
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: {
-            type: 'object',
-            properties:{
-              usuario:{type:'string'},
-              password:{type:'string'}
-            }
-          }
-        },
-      },
-    })
-    credentials: { usuario: string, password: string },
+    @param.query.string('usuario') usuario:string,
+    @param.query.string('password') password:string,
   ): Promise<{token: string }> {
     const perfil = await this.perfilRepository.findOne({
       where: {
-        usuario: credentials.usuario,
-        password: credentials.password,
+        usuario: usuario,
+        password: password,
       },
     });
 
