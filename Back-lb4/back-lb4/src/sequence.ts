@@ -5,7 +5,7 @@ export class MySequence extends MiddlewareSequence {
   async handle(context: RequestContext) {
     // Agrega el middleware CORS para permitir solicitudes desde tu frontend Angular
     const corsMiddleware = cors({
-      origin: 'http://localhost:4200', // Reemplaza con la URL de tu frontend Angular
+      origin: '*', // Reemplaza con la URL de tu frontend Angular
       methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
       optionsSuccessStatus: 204,
     });
