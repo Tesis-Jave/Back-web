@@ -100,24 +100,23 @@ export class PerfilController {
     const perfil = await this.perfilRepository.findOne({
       where: {
         usuario: usuario,
-        password: password,
       },
     });
 
-    if (!perfil) {
+    
+    if (perfil && perfil.password===password) {
+      const userProfile: UserProfile = {
+        [securityId]: perfil.usuario, // Agrega la propiedad [securityId] con el valor del nombre de usuario
+        id_perfil: perfil.id_perfil,
+        // Otros campos personalizados si es necesario
+      };
+      // Genera un token JWT
+      const token = await this.jwtService.generateToken(userProfile);
+
+      return { token };
+    }else{
       throw new HttpErrors.Unauthorized('Credenciales inválidas');
     }
-
-    const userProfile: UserProfile = {
-      [securityId]: perfil.usuario, // Agrega la propiedad [securityId] con el valor del nombre de usuario
-      id_perfil: perfil.id_perfil,
-      // Otros campos personalizados si es necesario
-    };
-
-    // Genera un token JWT
-    const token = await this.jwtService.generateToken(userProfile);
-
-    return { token };
   }
 
 
