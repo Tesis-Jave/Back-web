@@ -16,7 +16,7 @@ import {
   del,
   requestBody,
   response,
-  HttpErrors 
+  HttpErrors
 } from '@loopback/rest';
 import {Perfil} from '../models';
 import {PerfilRepository} from '../repositories';
@@ -32,7 +32,7 @@ export class PerfilController {
   constructor(
     @inject (TokenServiceBindings.TOKEN_SERVICE)
     public jwtService:TokenService,
-    
+
     @repository(PerfilRepository)
     public perfilRepository : PerfilRepository,
   ) {}
@@ -79,8 +79,8 @@ export class PerfilController {
         admin: createdPerfil.admin,
         // Otros campos personalizados si es necesario
       };
-    
-    
+
+
       // Genera un token JWT
       const token = await this.jwtService.generateToken(userProfile);
 
@@ -89,7 +89,7 @@ export class PerfilController {
     }else{
       throw new HttpErrors.Unauthorized('Usuario inválido');
     }
-    
+
   }
 
   @post('/perfils/login')
@@ -103,6 +103,8 @@ export class PerfilController {
       },
     });
 
+    console.log(perfil?.usuario);
+    console.log(perfil?.password);
     
     if (perfil && perfil.password===password) {
       const userProfile: UserProfile = {

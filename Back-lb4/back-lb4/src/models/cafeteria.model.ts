@@ -1,4 +1,10 @@
-import {Entity, model, property, belongsTo, hasMany} from '@loopback/repository';
+import {
+  Entity,
+  belongsTo,
+  hasMany,
+  model,
+  property,
+} from '@loopback/repository';
 import {Tarifasventa} from './tarifasventa.model';
 import {Tarjetascontpromociones} from './tarjetascontpromociones.model';
 
@@ -11,10 +17,8 @@ export class Cafeteria extends Entity {
   })
   id_cafeteria?: number;
 
-
   @belongsTo(() => Tarifasventa, {name: 'tarifa'})
   id_tarifa: number;
-
 
   // @property({
   //   type: 'number',
@@ -43,6 +47,11 @@ export class Cafeteria extends Entity {
     type: 'string',
   })
   tipo?: string;
+
+  @property({
+    type: 'string',
+  })
+  url?: string;
 
   constructor(data?: Partial<Cafeteria>) {
     super(data);
