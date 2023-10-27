@@ -103,8 +103,6 @@ export class PerfilController {
       },
     });
 
-    console.log(perfil?.usuario);
-    console.log(perfil?.password);
     
     if (perfil && perfil.password===password) {
       const userProfile: UserProfile = {
