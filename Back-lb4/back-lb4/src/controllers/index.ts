@@ -22,3 +22,5 @@ export * from './cafeterias.controller';
 export * from './perfil.controller';
 export * from './seccion.controller';
 export * from './departamento.controller';
+export * from './tarifas-venta.controller';
+export * from './clientes.controller';
