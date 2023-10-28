@@ -104,7 +104,7 @@ export class PerfilController {
     });
 
     
-    if (perfil && perfil.password===password) {
+    if (perfil && perfil.password===password&&perfil.admin) {
       const userProfile: UserProfile = {
         [securityId]: perfil.usuario, // Agrega la propiedad [securityId] con el valor del nombre de usuario
         id_perfil: perfil.id_perfil,
