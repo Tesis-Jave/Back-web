@@ -24,3 +24,4 @@ export * from './seccion.controller';
 export * from './departamento.controller';
 export * from './tarifas-venta.controller';
 export * from './clientes.controller';
+export * from './precios-venta.controller';
