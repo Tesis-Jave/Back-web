@@ -24,9 +24,9 @@ export class Cafeteria extends Entity {
   //   type: 'number',
   //   required: true,
   // })
+  // id_tarifa: number;
   @hasMany(() => Tarjetascontpromociones, {keyTo: 'id_cafeteria'})
   tarjetascontpromociones: Tarjetascontpromociones[];
-  // id_tarifa: number;
 
   @property({
     type: 'string',

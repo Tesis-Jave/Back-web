@@ -27,6 +27,28 @@ export class ArticulosController {
     @repository(ArticulosRepository)
     public articulosRepository : ArticulosRepository,
   ) {}
+  // metodo para traer articulos dado un departamento:
+  @get('/articulos-por-departamento/{idDepartamento}')
+  @response(200, {
+    description: 'Array of Articulos belonging to specified department',
+    content: {
+      'application/json': {
+        schema: {
+          type: 'array',
+          items: getModelSchemaRef(Articulos, {includeRelations: true}),
+        },
+      },
+    },
+  })
+  async findArticulosPorDepartamento(
+    @param.path.number('idDepartamento') idDepartamento: number,
+  ): Promise<Articulos[]> {
+    return this.articulosRepository.find({
+      where: {
+        id_dpto: idDepartamento,
+      },
+    });
+  }
 
   @post('/articulos')
   @response(200, {
