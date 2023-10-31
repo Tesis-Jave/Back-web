@@ -18,8 +18,8 @@ import {
   response,
   HttpErrors
 } from '@loopback/rest';
-import {Perfil} from '../models';
-import {PerfilRepository} from '../repositories';
+import {Perfil,Clientes} from '../models';
+import {PerfilRepository,ClientesRepository} from '../repositories';
 import { inject } from '@loopback/core';
 import { TokenServiceBindings } from '@loopback/authentication-jwt';
 import { TokenService } from '@loopback/authentication';
@@ -35,6 +35,9 @@ export class PerfilController {
 
     @repository(PerfilRepository)
     public perfilRepository : PerfilRepository,
+
+    @repository(ClientesRepository)
+    public clientesRepository: ClientesRepository,
   ) {}
 
   @post('/perfils')
@@ -96,7 +99,7 @@ export class PerfilController {
   async login(
     @param.query.string('usuario') usuario:string,
     @param.query.string('password') password:string,
-  ): Promise<{token: string }> {
+  ): Promise<{token: string,id:number|undefined }> {
     const perfil = await this.perfilRepository.findOne({
       where: {
         usuario: usuario,
@@ -105,6 +108,17 @@ export class PerfilController {
 
     
     if (perfil && perfil.password===password) {
+      const cliente: Clientes | null = await this.clientesRepository.findOne({
+        where:{
+          cif: perfil.cedula
+        }
+      });
+      let id = undefined;
+      if (cliente) {
+        // cliente no es null, puedes acceder a sus propiedades de manera segura
+        id = cliente.cif;
+        // Resto del código
+      }
       const userProfile: UserProfile = {
         [securityId]: perfil.usuario, // Agrega la propiedad [securityId] con el valor del nombre de usuario
         id_perfil: perfil.id_perfil,
@@ -113,7 +127,7 @@ export class PerfilController {
       // Genera un token JWT
       const token = await this.jwtService.generateToken(userProfile);
 
-      return { token };
+      return { token,id };
     }else{
       throw new HttpErrors.Unauthorized('Credenciales inválidas');
     }
