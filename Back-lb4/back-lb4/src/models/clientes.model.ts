@@ -101,7 +101,7 @@ export class Clientes extends Entity {
   })
   tipocliente?: number;
 
-  @hasMany(() => Tarjetas, {keyTo: 'is_cliente'})
+  @hasMany(() => Tarjetas, {keyTo: 'id_cliente'})
   tarjetas: Tarjetas[];
 
   constructor(data?: Partial<Clientes>) {

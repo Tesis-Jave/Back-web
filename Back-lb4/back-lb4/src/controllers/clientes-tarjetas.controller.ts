@@ -63,7 +63,7 @@ export class ClientesTarjetasController {
           schema: getModelSchemaRef(Tarjetas, {
             title: 'NewTarjetasInClientes',
             exclude: ['id_tarjeta'],
-            optional: ['is_cliente']
+            optional: ['id_cliente']
           }),
         },
       },

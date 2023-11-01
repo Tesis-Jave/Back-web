@@ -26,6 +26,32 @@ export class ClientesController {
     public clientesRepository : ClientesRepository,
   ) {}
 
+  @get('/clientes/{id}/balance')
+  async getCardBalance(
+    @param.path.number('id') id: number,
+  ): Promise<number|undefined> {
+    try {
+      const customer = await this.clientesRepository.findById(id, {
+        include: [{ relation: 'tarjetas' }], // Use an array for multiple inclusions
+      });
+
+      if (!customer) {
+        console.log("Error no se encontro el cliente")
+      }
+
+      if (customer.tarjetas && customer.tarjetas.length > 0) {
+        return customer.tarjetas[0].saldotarjeta || 0;
+      }
+
+      return 0; // No cards or no balance
+    } catch (error) {
+      console.log("Error en try")
+      console.log(error)
+      // Handle other unexpected errors here
+    }
+  }
+
+
   @post('/clientes')
   @response(200, {
     description: 'Clientes model instance',

@@ -38,10 +38,7 @@ export class Tarjetas extends Entity {
   })
   descripcion?: string;
 
-  @property({
-    type: 'number',
-  })
-  is_cliente?: number;
+  
 
   @property({
     type: 'number',
