@@ -10,6 +10,7 @@ import {
   get,
   getModelSchemaRef,
   getWhereSchemaFor,
+  HttpErrors,
   param,
   patch,
   post,
@@ -45,6 +46,32 @@ export class ClientesTarjetasController {
     @param.query.object('filter') filter?: Filter<Tarjetas>,
   ): Promise<Tarjetas[]> {
     return this.clientesRepository.tarjetas(id).find(filter);
+  }
+
+  @get('/clientes/{id}/tarjetas/id_cliente', {
+    responses: {
+      '200': {
+        description: 'Array of Clientes has many Tarjetas',
+        content: {
+          'application/json': {
+            schema: {type: 'array', items: getModelSchemaRef(Tarjetas)},
+          },
+        },
+      },
+    },
+  })
+  async findWithId(
+    @param.path.number('id') id: number,
+    @param.query.object('filter') filter?: Filter<Tarjetas>,
+  ): Promise<number|undefined> {
+
+    var tarjetas = await this.clientesRepository.tarjetas(id).find(filter);
+    if (!tarjetas){
+      throw new HttpErrors.NotFound('Cliente no encontrado');
+    }
+    if ( tarjetas.length>0){
+      return tarjetas[0].id_tarjeta
+    }
   }
 
   @post('/clientes/{id}/tarjetas', {

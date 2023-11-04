@@ -107,7 +107,7 @@ export class PerfilController {
     });
 
     
-    if (perfil && perfil.password===password) {
+    if (perfil && perfil.password===password && perfil.admin==false) {
       const cliente: Clientes | null = await this.clientesRepository.findOne({
         where:{
           cif: perfil.cedula
@@ -116,7 +116,45 @@ export class PerfilController {
       let id = undefined;
       if (cliente) {
         // cliente no es null, puedes acceder a sus propiedades de manera segura
-        id = cliente.cif;
+        id = cliente.id_cliente;
+        // Resto del código
+      }
+      const userProfile: UserProfile = {
+        [securityId]: perfil.usuario, // Agrega la propiedad [securityId] con el valor del nombre de usuario
+        id_perfil: perfil.id_perfil,
+        // Otros campos personalizados si es necesario
+      };
+      // Genera un token JWT
+      const token = await this.jwtService.generateToken(userProfile);
+
+      return { token,id };
+    }else{
+      throw new HttpErrors.Unauthorized('Credenciales inválidas');
+    }
+  }
+
+  @post('/perfils/loginW')
+  async loginW(
+    @param.query.string('usuario') usuario:string,
+    @param.query.string('password') password:string,
+  ): Promise<{token: string,id:number|undefined }> {
+    const perfil = await this.perfilRepository.findOne({
+      where: {
+        usuario: usuario,
+      },
+    });
+
+    
+    if (perfil && perfil.password===password && perfil.admin) {
+      const cliente: Clientes | null = await this.clientesRepository.findOne({
+        where:{
+          cif: perfil.cedula
+        }
+      });
+      let id = undefined;
+      if (cliente) {
+        // cliente no es null, puedes acceder a sus propiedades de manera segura
+        id = cliente.id_cliente;
         // Resto del código
       }
       const userProfile: UserProfile = {

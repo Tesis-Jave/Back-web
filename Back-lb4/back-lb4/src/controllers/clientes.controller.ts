@@ -16,6 +16,7 @@ import {
   del,
   requestBody,
   response,
+  HttpErrors,
 } from '@loopback/rest';
 import {Clientes} from '../models';
 import {ClientesRepository} from '../repositories';
@@ -48,6 +49,32 @@ export class ClientesController {
       console.log("Error en try")
       console.log(error)
       // Handle other unexpected errors here
+    }
+  }
+
+  @get('/clientes/cedula/{Cedula}')
+  @response(200, {
+    description: 'Clientes model instance',
+    content: {
+      'application/json': {
+        schema: getModelSchemaRef(Clientes, {includeRelations: true}),
+      },
+    },
+  })
+  async findByCedula(
+    @param.path.number('cedula') cedula: number,
+  ): Promise<number | undefined> {
+    var cliente= await this.clientesRepository.findOne({where:{
+      cif:cedula
+    },
+    include:[{relation:'tarjetas'}]})
+
+    if (!cliente) {
+      throw new HttpErrors.NotFound('Cliente no encontrado');
+    }
+    if (cliente.tarjetas && cliente.tarjetas.length > 0) {
+
+      return cliente.tarjetas[0].id_tarjeta || 0;
     }
   }
 
@@ -136,6 +163,8 @@ export class ClientesController {
   ): Promise<Clientes> {
     return this.clientesRepository.findById(id, filter);
   }
+
+
 
   @patch('/clientes/{id}')
   @response(204, {
