@@ -18,13 +18,16 @@ import {
   response,
   HttpErrors,
 } from '@loopback/rest';
-import {Clientes} from '../models';
-import {ClientesRepository} from '../repositories';
+import {Clientes,Tarjetas} from '../models';
+import {ClientesRepository,TarjetasRepository} from '../repositories';
 
 export class ClientesController {
   constructor(
     @repository(ClientesRepository)
     public clientesRepository : ClientesRepository,
+
+    @repository(TarjetasRepository)
+    public tarjetasRepo: TarjetasRepository,
   ) {}
 
   @get('/clientes/{id}/balance')
@@ -53,28 +56,24 @@ export class ClientesController {
   }
 
   @get('/clientes/cedula/{Cedula}')
-  @response(200, {
-    description: 'Clientes model instance',
-    content: {
-      'application/json': {
-        schema: getModelSchemaRef(Clientes, {includeRelations: true}),
-      },
-    },
-  })
   async findByCedula(
-    @param.path.number('cedula') cedula: number,
+    @param.path.number('Cedula') cedula: number,
   ): Promise<number | undefined> {
-    var cliente= await this.clientesRepository.findOne({where:{
-      cif:cedula
-    },
-    include:[{relation:'tarjetas'}]})
+    const cliente = await this.clientesRepository.findOne({
+      where: {
+        cif: cedula,
+      },
+      include: [{ relation: 'tarjetas' }],
+    });
 
-    if (!cliente) {
-      throw new HttpErrors.NotFound('Cliente no encontrado');
-    }
-    if (cliente.tarjetas && cliente.tarjetas.length > 0) {
-
-      return cliente.tarjetas[0].id_tarjeta || 0;
+    if (cliente) {
+      if (cliente.tarjetas && cliente.tarjetas.length > 0) {
+        return cliente.tarjetas[0].id_tarjeta || 0;
+      } else {
+        return 0; // Si el cliente no tiene tarjetas, puedes devolver un valor predeterminado
+      }
+    } else {
+      return undefined; // El cliente no se encontró, puedes devolver undefined o un valor específico si lo deseas
     }
   }
 
@@ -97,6 +96,19 @@ export class ClientesController {
     })
     clientes: Omit<Clientes, 'id_cliente'>,
   ): Promise<Clientes> {
+
+    var cliente = this.clientesRepository.create(clientes)
+
+    const tarjetaNueva = new Tarjetas({
+      id_cliente:(await cliente).id_cliente,
+      descripcion:"Tarjeta creada desde la app",
+      valida:1,
+      saldotarjeta:0,
+      entregada:"N",
+      codmoneda:"COP"
+    })
+
+    this.tarjetasRepo.create(tarjetaNueva)
     return this.clientesRepository.create(clientes);
   }
 

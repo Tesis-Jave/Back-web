@@ -17,13 +17,15 @@ import {
   requestBody,
   response,
 } from '@loopback/rest';
-import {Tarjetas} from '../models';
-import {TarjetasRepository} from '../repositories';
+import {Tarjetas,Tarjetascontpromociones} from '../models';
+import {TarjetasRepository,TarjetascontpromocionesRepository} from '../repositories';
 
 export class TarjetasController {
   constructor(
     @repository(TarjetasRepository)
     public tarjetasRepository : TarjetasRepository,
+    @repository(TarjetascontpromocionesRepository)
+    public tarjetascontRepository : TarjetascontpromocionesRepository,
   ) {}
 
   @post('/tarjetas')
@@ -109,6 +111,67 @@ export class TarjetasController {
     @param.filter(Tarjetas, {exclude: 'where'}) filter?: FilterExcludingWhere<Tarjetas>
   ): Promise<Tarjetas> {
     return this.tarjetasRepository.findById(id, filter);
+  }
+
+  @get('/tarjetas/saldo/{id}')
+  @response(200,{
+    description: 'Tarjetas model instance',
+    content:{
+      'application/json':{
+        schema:getModelSchemaRef(Tarjetas,{includeRelations:true}),
+      },
+    },
+  })async findSaldo(
+    @param.path.number('id') id:number,
+    @param.filter(Tarjetas, {exclude: 'where'}) filter?: FilterExcludingWhere<Tarjetas>
+  ):Promise <number|undefined>{
+    const tarjeta = await this.tarjetasRepository.findOne({
+      where:{
+        id_tarjeta:id,
+      },
+    });
+    return tarjeta?.saldotarjeta
+  }
+
+  @post('/tarjetas/enviar')
+  async enviarPuntos(
+    @param.query.string('Origen') origen:number,
+    @param.query.string('Destino') destino:number,
+    @param.query.string('cantidad') cantidad:number,
+    @param.query.string('Description') descripcion:string,
+    @param.query.string('fecha') fecha:Date,
+  ): Promise <number>{
+    const tarjeta=await this.tarjetasRepository.findById(origen);
+    if(tarjeta?.saldotarjeta){
+      if(tarjeta.saldotarjeta >= cantidad){
+        const tarjetaD = await this.tarjetasRepository.findById(destino);
+        if(tarjetaD?.saldotarjeta){
+          tarjetaD.saldotarjeta = (tarjetaD?.saldotarjeta || 0) + Number(cantidad);
+          await this.updateById(destino,tarjetaD)
+          tarjeta.saldotarjeta=tarjeta.saldotarjeta-cantidad
+          await this.updateById(origen,tarjeta)
+
+          const nuevaTarjetaContPromocion = new Tarjetascontpromociones({
+            id_tarjeta: origen, // Asignar el ID de la tarjeta destino
+            id_cafeteria: 1, // Asignar el ID de la cafetería (ajusta según tus necesidades)
+            puntosredimidos: cantidad, // Asignar la cantidad de puntos redimidos
+            fecha: fecha, // Asignar la fecha actual o la fecha que desees
+            descripcion:descripcion, // Asignar la descripción
+          });
+
+          try {
+            await this.tarjetascontRepository.create(nuevaTarjetaContPromocion);
+            return 1;
+          } catch (error) {
+            // Aquí puedes manejar el error de la manera que prefieras
+            console.error("Error al crear un nuevo registro en tarjetascontRepository:", error);
+            // Puedes lanzar una excepción personalizada o devolver false, según tus necesidades.
+            return 0;
+          }
+        }
+      }
+    }
+    return 1
   }
 
   @patch('/tarjetas/{id}')

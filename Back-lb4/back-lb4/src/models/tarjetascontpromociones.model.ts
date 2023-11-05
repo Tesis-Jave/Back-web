@@ -40,7 +40,7 @@ export class Tarjetascontpromociones extends Entity {
   @property({
     type: 'date',
   })
-  fecha?: string;
+  fecha?: Date;
 
   @property({
     type: 'string',

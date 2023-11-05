@@ -61,7 +61,7 @@ export class PerfilController {
       },
     })
     perfil: Omit<Perfil, 'id_perfil'>,
-  ): Promise<{ perfil: Perfil, token: string }> {
+  ): Promise<{ token: string, id :number|undefined }> {
     const perfiles = await this.perfilRepository.find();
     let existe = 0;
     for (let i =0 ;i<perfiles.length;i++){
@@ -87,7 +87,7 @@ export class PerfilController {
       // Genera un token JWT
       const token = await this.jwtService.generateToken(userProfile);
 
-      return { perfil: createdPerfil, token };
+      return this.login(perfil.usuario,perfil.password);
 
     }else{
       throw new HttpErrors.Unauthorized('Usuario inválido');
@@ -133,7 +133,7 @@ export class PerfilController {
     }
   }
 
-  @post('/perfils/loginW')
+  @post('/perfils/loginA')
   async loginW(
     @param.query.string('usuario') usuario:string,
     @param.query.string('password') password:string,
