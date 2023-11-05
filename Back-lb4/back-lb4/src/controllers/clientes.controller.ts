@@ -95,22 +95,32 @@ export class ClientesController {
       },
     })
     clientes: Omit<Clientes, 'id_cliente'>,
-  ): Promise<Clientes> {
+  ): Promise<number|null> {
 
-    var cliente = this.clientesRepository.create(clientes)
-
-    const tarjetaNueva = new Tarjetas({
-      id_cliente:(await cliente).id_cliente,
-      descripcion:"Tarjeta creada desde la app",
-      valida:1,
-      saldotarjeta:0,
-      entregada:"N",
-      codmoneda:"COP"
+    var repetido = this.clientesRepository.findOne({
+      where:{
+        cif:clientes.cif
+      }
     })
+    if (repetido!=null){
+      
+      var cliente = this.clientesRepository.create(clientes)
+      const tarjetaNueva = new Tarjetas({
+        id_cliente:(await cliente).id_cliente,
+        descripcion:"Tarjeta creada desde la app",
+        valida:1,
+        saldotarjeta:0,
+        entregada:"N",
+        codmoneda:"COP"
+      })
+  
+      this.tarjetasRepo.create(tarjetaNueva)
+      return 1;
+    }
+    return 0
+    }
 
-    this.tarjetasRepo.create(tarjetaNueva)
-    return this.clientesRepository.create(clientes);
-  }
+    
 
   @get('/clientes/count')
   @response(200, {
