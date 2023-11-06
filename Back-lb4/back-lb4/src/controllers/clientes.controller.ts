@@ -18,8 +18,8 @@ import {
   response,
   HttpErrors,
 } from '@loopback/rest';
-import {Clientes,Tarjetas} from '../models';
-import {ClientesRepository,TarjetasRepository} from '../repositories';
+import {Clientes,Perfil,Tarjetas} from '../models';
+import {ClientesRepository,TarjetasRepository,PerfilRepository} from '../repositories';
 
 export class ClientesController {
   constructor(
@@ -28,6 +28,9 @@ export class ClientesController {
 
     @repository(TarjetasRepository)
     public tarjetasRepo: TarjetasRepository,
+
+    @repository(PerfilRepository)
+    public perfilRepo: PerfilRepository,
   ) {}
 
   @get('/clientes/{id}/balance')
@@ -186,6 +189,31 @@ export class ClientesController {
     return this.clientesRepository.findById(id, filter);
   }
 
+  @get('/clientes/perfil/{id}')
+  @response(200, {
+    description: 'Clientes model instance',
+    content: {
+      'application/json': {
+        schema: getModelSchemaRef(Clientes, { includeRelations: true }),
+      },
+    },
+  })
+  async findByIdPerfil(
+    @param.path.number('id') id: number,
+  ): Promise<{ cliente: Clientes, perfil: Perfil|null }> {
+    const filter: Filter<Clientes> = {
+      fields: { tarjetas: false }, // Excluir la relación tarjetas
+    };
+
+    const cliente = await this.clientesRepository.findById(id, filter);
+    const perfil = await this.perfilRepo.findOne({
+      where: {
+        cedula: cliente.cif,
+      },
+    });
+
+  return { cliente, perfil };
+}
 
 
   @patch('/clientes/{id}')
@@ -212,9 +240,15 @@ export class ClientesController {
   })
   async replaceById(
     @param.path.number('id') id: number,
-    @requestBody() clientes: Clientes,
+    @requestBody() data: { clientes: Clientes, perfil: Perfil }
   ): Promise<void> {
-    await this.clientesRepository.replaceById(id, clientes);
+     var perfilM = await this.perfilRepo.findOne({
+      where:{
+        cedula:data.clientes.cif,
+      }
+    });
+    await this.perfilRepo.replaceById(perfilM?.id_perfil,data.perfil);
+    await this.clientesRepository.replaceById(id, data.clientes);
   }
 
   @del('/clientes/{id}')
