@@ -76,7 +76,7 @@ export class Clientes extends Entity {
   poblacionbanco?: string;
 
   @property({
-    type: 'date',
+    type: 'string',
   })
   fechanacimiento?: string;
 

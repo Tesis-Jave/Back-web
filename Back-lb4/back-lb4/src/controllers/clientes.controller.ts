@@ -105,7 +105,7 @@ export class ClientesController {
         cif:clientes.cif
       }
     })
-    if (repetido!=null){
+    if (await repetido===null){
       
       var cliente = this.clientesRepository.create(clientes)
       const tarjetaNueva = new Tarjetas({

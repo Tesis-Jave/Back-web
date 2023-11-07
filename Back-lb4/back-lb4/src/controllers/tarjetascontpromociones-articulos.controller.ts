@@ -20,14 +20,64 @@ Tarjetascontpromociones,
 Productosredimidos,
 Articulos,
 } from '../models';
-import {TarjetascontpromocionesRepository} from '../repositories';
+import {TarjetascontpromocionesRepository,ArticulosRepository,ProductosredimidosRepository} from '../repositories';
 import {authenticate} from '@loopback/authentication';
+
+// Define el tipo PromocionWithArticulos
+interface TransaccionProductos {
+  id_transaccion: number|undefined;
+  id_cliente:number|undefined;
+  productos: Articulos[];
+}
 
 @authenticate('jwt')
 export class TarjetascontpromocionesArticulosController {
   constructor(
     @repository(TarjetascontpromocionesRepository) protected tarjetascontpromocionesRepository: TarjetascontpromocionesRepository,
+    @repository(ArticulosRepository) protected articulosRepository: ArticulosRepository,
+    @repository(ProductosredimidosRepository) protected productosRedimidosRepo: ProductosredimidosRepository,
   ) { }
+
+  @get('/tarjetascontpromociones/all-articulos', {
+    responses: {
+      '200': {
+        description: 'Array of Articulos associated with the specified Tarjetascontpromociones',
+        content: {
+          'application/json': {
+            schema: { type: 'array', items: { 'x-ts-type': Articulos } },
+          },
+        },
+      },
+    },
+  })
+  async findAllArticulos(): Promise<(TransaccionProductos)[]> {
+    const tarjetascontpromociones: Tarjetascontpromociones[] = await this.tarjetascontpromocionesRepository.find();
+    var transacciones:TransaccionProductos[]=[]
+    for ( var i =0;i<tarjetascontpromociones.length;i++){
+      var transaccionesAux = await this.productosRedimidosRepo.find({
+        where:{
+          id_transaccion:tarjetascontpromociones[i].id_transaccion,
+        },
+      })
+      if(transaccionesAux.length>0){
+        
+        const idTransaccion = tarjetascontpromociones[i].id_transaccion;
+        const idCliente = tarjetascontpromociones[i].id_tarjeta;
+        const productos : Articulos[]=[]
+
+        for(var a = 0; a<transaccionesAux.length;a++){
+          productos.push(await this.articulosRepository.findById(transaccionesAux[a].id_articulo))
+        }
+
+        transacciones.push({id_transaccion:idTransaccion,id_cliente:idCliente,productos:productos})
+      }
+    }
+    if (!tarjetascontpromociones) {
+      throw new Error('Tarjetascontpromociones not found');
+    }
+    // Obtener los IDs de Articulos de la propiedad articulosredimidos
+    return transacciones;
+  }
 
   @get('/tarjetascontpromociones/{id}/articulos', {
     responses: {

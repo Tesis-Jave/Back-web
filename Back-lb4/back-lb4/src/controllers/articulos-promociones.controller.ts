@@ -18,17 +18,25 @@ import {
 import {
 Articulos,
 Articulopromocion,
-Promociones,
+Promociones
 } from '../models';
-import {ArticulopromocionRepository, ArticulosRepository} from '../repositories';
+import {ArticulopromocionRepository, ArticulosRepository,PromocionesRepository} from '../repositories';
 import {authenticate} from '@loopback/authentication';
 import {prototype} from 'events';
+
+// Define el tipo PromocionWithArticulos
+interface PromocionWithArticulos {
+  id_promocion: number;
+  productos: Articulos[];
+}
+
 
 @authenticate('jwt')
 export class ArticulosPromocionesController {
   constructor(
     @repository(ArticulosRepository) protected articulosRepository: ArticulosRepository,
-    @repository(ArticulopromocionRepository) protected articulosPromocionRepository: ArticulopromocionRepository
+    @repository(ArticulopromocionRepository) protected articulosPromocionRepository: ArticulopromocionRepository,
+    @repository(PromocionesRepository) protected promocionesRepository: PromocionesRepository
   ) { }
 
   @get('/articulos/{id}/promociones', {
@@ -148,5 +156,34 @@ export class ArticulosPromocionesController {
 
   }
 
+  @get('/promociones/articulos')
+  async findArticulosPromocion(): Promise<PromocionWithArticulos[]> {
+    const promociones: Promociones[] = await this.promocionesRepository.find();
+    const promocionesArticulos: PromocionWithArticulos[] = [];
+
+    for (const promocion of promociones) {
+      const promocionId = promocion.id_promocion;
+
+      if (promocionId !== undefined) {
+        const articuloPromociones: Articulopromocion[] = await this.articulosPromocionRepository.find({
+          where: { id_promocion: promocionId },
+        });
+
+        const articuloIds: number[] = articuloPromociones
+          .map(ap => ap.id_articulo)
+          .filter(id => id !== undefined) as number[];
+
+        const articulos: Articulos[] = await this.articulosRepository.find({
+          where: { id_articulo: { inq: articuloIds } },
+        });
+
+        promocionesArticulos.push({ id_promocion: promocionId, productos: articulos });
+      }
+    }
+
+    return promocionesArticulos;
+  }
+
+  
 }
 
