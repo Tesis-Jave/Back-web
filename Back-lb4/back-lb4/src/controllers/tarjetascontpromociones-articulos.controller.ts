@@ -27,7 +27,7 @@ import {authenticate} from '@loopback/authentication';
 interface TransaccionProductos {
   id_transaccion: number|undefined;
   id_cliente:number|undefined;
-  productos: Articulos[];
+  productos: string[];
 }
 
 @authenticate('jwt')
@@ -63,10 +63,10 @@ export class TarjetascontpromocionesArticulosController {
         
         const idTransaccion = tarjetascontpromociones[i].id_transaccion;
         const idCliente = tarjetascontpromociones[i].id_tarjeta;
-        const productos : Articulos[]=[]
+        const productos : string[]=[]
 
         for(var a = 0; a<transaccionesAux.length;a++){
-          productos.push(await this.articulosRepository.findById(transaccionesAux[a].id_articulo))
+          productos.push((await this.articulosRepository.findById(transaccionesAux[a].id_articulo)).descripcion)
         }
 
         transacciones.push({id_transaccion:idTransaccion,id_cliente:idCliente,productos:productos})
