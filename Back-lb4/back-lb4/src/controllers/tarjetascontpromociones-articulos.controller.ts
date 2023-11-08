@@ -21,7 +21,7 @@ Productosredimidos,
 Articulos,
 Tarjetas
 } from '../models';
-import {TarjetascontpromocionesRepository,ArticulosRepository,ProductosredimidosRepository,TarjetasRepository} from '../repositories';
+import {TarjetascontpromocionesRepository,ArticulosRepository,ProductosredimidosRepository,TarjetasRepository,ClientesRepository} from '../repositories';
 import {authenticate} from '@loopback/authentication';
 import * as fs from 'fs';
 import { FPGrowth } from 'node-fpgrowth';
@@ -45,6 +45,7 @@ export class TarjetascontpromocionesArticulosController {
     @repository(ArticulosRepository) protected articulosRepository: ArticulosRepository,
     @repository(ProductosredimidosRepository) protected productosRedimidosRepo: ProductosredimidosRepository,
     @repository(TarjetasRepository) protected tarjetasRepository: TarjetasRepository,
+    @repository(ClientesRepository) protected clientesRepo: ClientesRepository,
   ) { }
 
   // Endpoint para obtener recomendaciones basadas en filtrado colaborativo
@@ -62,9 +63,16 @@ export class TarjetascontpromocionesArticulosController {
   })
   async findCollaborativeFilteringRecommendations(@param.path.number('id') id: number): Promise<Articulos[] | null> {
     // Obtén las transacciones asociadas con el cliente actual
+
+    const idTarjeta = await this.tarjetasRepository.findOne({
+      where:{
+        id_cliente:id,
+      },
+    }) 
+
     const transaccionesClienteActual = await this.tarjetascontpromocionesRepository.find({
       where: {
-        id_tarjeta: id, // ID del cliente para el que se generan recomendaciones
+        id_tarjeta: idTarjeta?.id_tarjeta, // ID del cliente para el que se generan recomendaciones
       },
     });
 
@@ -72,7 +80,7 @@ export class TarjetascontpromocionesArticulosController {
     const comprasClienteActualIds = transaccionesClienteActual.map((transaccion) => transaccion.id_transaccion);
 
     // Obtén las compras anteriores del cliente actual (el cliente para el que se generan recomendaciones)
-    const comprasClienteActual = await this.tarjetascontpromocionesRepository.articulosredimidos(id).find();
+    const comprasClienteActual = await this.tarjetascontpromocionesRepository.articulosredimidos(idTarjeta?.id_tarjeta).find();
 
     // Obtén los productos comprados por el cliente actual
     const productosCompradosPorClienteActual = comprasClienteActual
@@ -83,7 +91,7 @@ export class TarjetascontpromocionesArticulosController {
     const userPurchaseMatrix: { userId: number; products: number[] }[] = await this.buildUserPurchaseMatrix();
 
     // Supongamos que tienes una función llamada "getCollaborativeFilteringRecommendations" que toma el ID del cliente y sus compras como entrada
-    const collaborativeRecommendations = this.getCollaborativeFilteringRecommendations(id, productosCompradosPorClienteActual, userPurchaseMatrix);
+    const collaborativeRecommendations = this.getCollaborativeFilteringRecommendations(idTarjeta?.id_tarjeta, productosCompradosPorClienteActual, userPurchaseMatrix);
 
     // Si obtuviste recomendaciones, busca los detalles de los productos recomendados
     if (collaborativeRecommendations.length > 0) {
@@ -135,7 +143,7 @@ export class TarjetascontpromocionesArticulosController {
 
 
   getCollaborativeFilteringRecommendations(
-    userId: number,
+    userId: number|undefined,
     userPurchases: number[],
     userPurchaseMatrix: { userId: number; products: number[] }[]
   ): number[] {
