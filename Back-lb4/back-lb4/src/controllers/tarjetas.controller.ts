@@ -145,7 +145,7 @@ export class TarjetasController {
     if(tarjeta?.saldotarjeta){
       if(tarjeta.saldotarjeta >= cantidad){
         const tarjetaD = await this.tarjetasRepository.findById(destino);
-        if(tarjetaD?.saldotarjeta){
+        if(tarjetaD?.saldotarjeta || tarjetaD?.saldotarjeta===0){
           tarjetaD.saldotarjeta = (tarjetaD?.saldotarjeta || 0) + Number(cantidad);
           await this.updateById(destino,tarjetaD)
           tarjeta.saldotarjeta=tarjeta.saldotarjeta-cantidad
