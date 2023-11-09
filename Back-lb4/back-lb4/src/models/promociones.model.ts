@@ -26,6 +26,12 @@ export class Promociones extends Entity {
   })
   fechafin: string;
 
+  // @property({
+  //   type: 'array',
+  //   itemType: 'number',
+  // })
+  // articulosIds?: number[];
+
 
   constructor(data?: Partial<Promociones>) {
     super(data);
