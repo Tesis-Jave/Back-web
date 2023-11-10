@@ -256,6 +256,7 @@ export class ClientesController {
     description: 'Clientes DELETE success',
   })
   async deleteById(@param.path.number('id') id: number): Promise<void> {
+    await this.tarjetasRepo.deleteById(id);
     await this.clientesRepository.deleteById(id);
   }
 }

@@ -70,7 +70,7 @@ export class PerfilController {
       }
     }
 
-    if (existe==0){
+    if (existe===0){
       const createdPerfil = await this.perfilRepository.create(perfil);
       const userProfile: UserProfile = {
         id_perfil: createdPerfil.id_perfil, // Proporciona el ID del perfil
@@ -90,7 +90,7 @@ export class PerfilController {
       return this.login(perfil.usuario,perfil.password);
 
     }else{
-      throw new HttpErrors.Unauthorized('Usuario inválido');
+      throw new HttpErrors.Unauthorized('Cédula invalido');
     }
 
   }
