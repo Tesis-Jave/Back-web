@@ -18,20 +18,13 @@ export class Promociones extends Entity {
     type: 'date',
     required: true,
   })
-  fechainicio: string;
+  fechainicio?: Date;
 
   @property({
     type: 'date',
     required: true,
   })
-  fechafin: string;
-
-  // @property({
-  //   type: 'array',
-  //   itemType: 'number',
-  // })
-  // articulosIds?: number[];
-
+  fechafin?: Date;
 
   constructor(data?: Partial<Promociones>) {
     super(data);
